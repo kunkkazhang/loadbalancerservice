@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ucloud-nginx-out-tcp-new
+  labels:
+    app: ucloud-nginx-out-tcp-new
+  annotations:
+    "service.beta.kubernetes.io/ucloud-load-balancer-vserver-listentype": "RequestProxy" ## 监听器转发模式，支持RequestProxy和PacketsTransmit，默认为PacketsTransmit
+    "service.beta.kubernetes.io/ucloud-load-balancer-vserver-protocol": "HTTPS"       ## VServer协议类型，默认为HTTP，支持TCP、HTTP、HTTPS
+    "service.beta.kubernetes.io/ucloud-load-balancer-vserver-method": "Roundrobin"  ##负载均衡模式，默认为Roundrobin，协议为HTTP时支持Roundrobin,Source    
+    "service.beta.kubernetes.io/ucloud-load-balancer-vserver-session-persistence-type": "None" ##默认为None，支持None,ServerInsert,UserDefined
+    "service.beta.kubernetes.io/ucloud-load-balancer-vserver-session-persistence-info": "string" ##用户自定义KEY，会话保持方式为UserDefined有效
+    "service.beta.kubernetes.io/ucloud-load-balancer-vserver-client-timeout": "60" ##空闲连接回收时间，单位为秒，取值范围：时(0，86400]，默认值为60
+    "service.beta.kubernetes.io/ucloud-load-balancer-vserver-monitor-type": "Path" ##健康检查类型，支持Port和Path，默认为Port
+    "service.beta.kubernetes.io/ucloud-load-balancer-vserver-monitor-domain": "www.ucloud.cn" ##http检查域名
+    "service.beta.kubernetes.io/ucloud-load-balancer-vserver-ssl-cert": "ssl_id"   ### upload your ssl certifates on https://console.ucloud.cn/ulb/certificate
+    "service.beta.kubernetes.io/ucloud-load-balancer-vserver-monitor-path": "/html/index"  ##http检查路径    
+    ## 以下为EIP的相关注释  
+    "service.beta.kubernetes.io/ucloud-load-balancer-eip-paymode": "Bandwidth" ### Traffic、Bandwidth support
+    "service.beta.kubernetes.io/ucloud-load-balancer-eip-bandwidth": "10" ### 10Mbps Default 
+    "service.beta.kubernetes.io/ucloud-load-balancer-eip-chargetype": "month" ## support month，year，dynamic,
+    "service.beta.kubernetes.io/ucloud-load-balancer-eip-quantity": "1" ## default 1
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 80
+  selector:
+    app: ucloud-nginx-out-tcp-new
